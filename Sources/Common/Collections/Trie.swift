@@ -1,6 +1,6 @@
 //
 //  Trie.swift
-//  Rules
+//  Common
 //
 //  Created by Michel Tilman on 01/02/2020.
 //  Copyright © 2019 Dotted.Pair.
@@ -33,15 +33,11 @@ public protocol TrieNode {
     /// Default initializer.
     init()
 
-    // MARK: Acessing / constructing child nodes
+    // MARK: Acessing child nodes
     
     /// Returns (or sets) the child node identified by given key, or nil if it does not exist.
     subscript(k: Key) -> Self? { get set }
 
-    /// Returns the child node identified by given key.
-    /// Creates the child node if missing.
-    func childNodeWithKey(_ key: Key) -> Self
-    
 }
 
 
@@ -77,7 +73,7 @@ public class Trie<Key, Value, Node> where Node: TrieNode, Key == Node.Key, Value
         var lastValue = node.value
         
         for key in keys {
-            guard let childNode = node[key] else { return lastValue }
+            guard let childNode = node[key] else { break }
             node = childNode
             if let value = node.value { lastValue = value }
         }
@@ -107,12 +103,25 @@ public class Trie<Key, Value, Node> where Node: TrieNode, Key == Node.Key, Value
         var node = root
         
         for key in keys {
-            node = node.childNodeWithKey(key)
+            node = childNode(of: &node, forKey: key)
         }
         node.value = value
     }
     
+    // MARK: Private accessing / constructing trie nodes
+     
+    // Returns the child node identified by given key, creating it if absent.
+    private func childNode(of node: inout Node, forKey key: Key) -> Node {
+        if let childNode = node[key] { return childNode }
+        let childNode = Node()
+             
+        node[key] = childNode
+             
+        return childNode
+    }
+
 }
+
 
 /**
  Default implementation of a trie node.
@@ -143,25 +152,14 @@ public final class DefaultTrieNode<Key, Value>: TrieNode where Key: Hashable {
     /// Public default initializer.
     public init() {}
     
-    // MARK: Accessing / constructing trie nodes
+    // MARK: Accessing trie nodes
      
-    /// Returns (or sets) the child node identified by given key, or nil if it does not exist.
+    /// Returns or sets the child node identified by given key, or nil if it does not exist.
     public subscript(k: Key) -> DefaultTrieNode? {
         get { children[k] }
         set { children[k] = newValue }
     }
     
-    /// Returns the child node identified by given key.
-    /// Creates the child node if missing.
-    public func childNodeWithKey(_ key: Key) -> DefaultTrieNode {
-        if let node = self[key] { return node }
-        let node = Self()
-             
-        self[key] = node
-             
-        return node
-    }
-
 }
 
 

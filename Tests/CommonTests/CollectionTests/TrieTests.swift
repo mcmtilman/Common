@@ -1,6 +1,5 @@
 //
 //  TrieTests.swift
-//  RulesTests
 //
 //  Created by Michel Tilman on 02/02/2020.
 //  Copyright © 2019 Dotted.Pair.
